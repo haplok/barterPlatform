@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Объявления — Бартерная платформа{% endblock %}
+
+{% block content %}
+<h1>Объявления</h1>
+
+<form method="get" style="margin-bottom: 20px;">
+    <input type="text" name="q" placeholder="Поиск..." value="">
+    
+    <select name="category">
+        <option value="">Все категории</option>
+        {% for cat in categories %}
+            <option value="{{ cat }}" {% if cat == category %}selected{% endif %}>{{ cat }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="condition">
+        <option value="">Любое состояние</option>
+        <option value="new" {% if condition == "new" %}selected{% endif %}>Новый</option>
+        <option value="used" {% if condition == "used" %}selected{% endif %}>Б/у</option>
+    </select>
+
+    <button type="submit">Фильтровать</button>
+</form>
+
+<ul style="list-style: none; padding: 0;">
+    {% for ad in page_obj %}
+        <li style="
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: {% if ad.user == user %}#e0f7e9{% else %}#f9f9f9{% endif %};
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        ">
+            <h3>{{ ad.title }}</h3>
+            {% if ad.image %}
+                <img src="{{ ad.image.url }}" alt="{{ ad.title }}" style="max-width: 150px; border-radius: 8px;">
+            {% endif %}
+            <p><strong>Категория:</strong> {{ ad.category }} | <strong>Состояние:</strong> {{ ad.condition }}</p>
+            <p>{{ ad.description|truncatechars:150 }}</p>
+            <p><em>Размещено {{ ad.created_at|date:"d.m.Y H:i" }}</em></p>
+            <a href="{% url 'ad_detail' ad.id %}">Подробнее</a>
+            {% if ad.user == user %}
+                <span style="color: green; margin-left: 10px;">(Ваше объявление)</span>
+            {% endif %}
+        </li>
+    {% empty %}
+        <li>Объявлений не найдено.</li>
+    {% endfor %}
+</ul>
+
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?{% if query %}q={{ query }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if condition %}condition={{ condition }}&{% endif %}page={{ page_obj.previous_page_number }}">← Назад</a>
+    {% endif %}
+
+    <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+        <a href="?{% if query %}q={{ query }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if condition %}condition={{ condition }}&{% endif %}page={{ page_obj.next_page_number }}">Вперёд →</a>
+    {% endif %}
+</div>
+{% endblock %}

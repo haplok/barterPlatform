@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container" style="max-width: 900px; margin: auto; padding: 2rem;">
+
+  <h2 style="margin-bottom: 1.5rem;">Предложения обмена</h2>
+
+  <!-- Форма фильтрации -->
+  <form method="get" class="filter-form" style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+    <input type="text" name="q" value="{{ query }}" placeholder="Поиск..." class="form-control" style="flex: 2; min-width: 200px; padding: 0.5rem;">
+
+    <select name="status" class="form-control" style="flex: 1; min-width: 150px; padding: 0.5rem;">
+      <option value="">Все статусы</option>
+      <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Ожидает</option>
+      <option value="accepted" {% if status_filter == 'accepted' %}selected{% endif %}>Принято</option>
+      <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Отклонено</option>
+    </select>
+
+    <label style="display: flex; align-items: center;">
+      <input type="checkbox" name="only_mine" {% if only_mine %}checked{% endif %}>
+      <span style="margin-left: 0.5rem;">Только мои</span>
+    </label>
+
+    <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Фильтр</button>
+  </form>
+
+  <!-- Список предложений -->
+  <ul class="proposal-list" style="list-style: none; padding-left: 0;">
+    {% for proposal in page_obj %}
+      <li class="proposal-card" style="padding: 1rem; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 1rem;">
+        <div>
+          <strong>Объявление:</strong>
+          <a href="{% url 'ad_detail' proposal.requested_ad.id %}">
+            {{ proposal.requested_ad.title }}
+          </a>
+          ← <em>{{ proposal.offered_ad.title }}</em>
+        </div>
+        <div style="margin-top: 0.5rem;">
+          <small>
+            От: <strong>{{ proposal.sender.username }}</strong> |
+            Кому: <strong>{{ proposal.receiver.username }}</strong> |
+            Статус: <strong>{{ proposal.get_status_display }}</strong>
+          </small>
+        </div>
+      </li>
+    {% empty %}
+      <li>Предложений не найдено.</li>
+    {% endfor %}
+  </ul>
+
+  <!-- Пагинация -->
+  {% if page_obj.has_other_pages %}
+    <nav class="pagination" style="text-align: center; margin-top: 2rem;">
+      <ul style="list-style: none; padding-left: 0; display: inline-flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+        {% if page_obj.has_previous %}
+          <li><a href="?q={{ query }}&status={{ status_filter }}{% if only_mine %}&only_mine=on{% endif %}&page={{ page_obj.previous_page_number }}">« Назад</a></li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+          {% if num == page_obj.number %}
+            <li><strong>{{ num }}</strong></li>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li><a href="?q={{ query }}&status={{ status_filter }}{% if only_mine %}&only_mine=on{% endif %}&page={{ num }}">{{ num }}</a></li>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+          <li><a href="?q={{ query }}&status={{ status_filter }}{% if only_mine %}&only_mine=on{% endif %}&page={{ page_obj.next_page_number }}">Вперёд »</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+
+</div>
+{% endblock %}

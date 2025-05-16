@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Входящие сообщения</h2>
+<ul style="list-style: none; padding: 0;">
+    {% for msg in messages %}
+        <li style="margin-bottom: 20px;">
+            <a href="{% if msg.proposal %}{% url 'proposal_detail' msg.proposal.id %}{% else %}{% url 'message_detail' msg.id %}{% endif %}"
+               style="display: block; padding: 10px; border: 1px solid #ddd; border-radius: 8px; text-decoration: none; color: inherit;">
+                <strong>От:</strong> {{ msg.sender }}<br>
+                <strong>Дата:</strong> {{ msg.sent_at|date:"d.m.Y H:i" }}<br>
+                <p>{{ msg.content|truncatewords:10 }}</p>
+            </a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

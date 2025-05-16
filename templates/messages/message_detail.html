@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Сообщение от {{ message.sender }}</h2>
+<p><strong>Дата:</strong> {{ message.sent_at|date:"d.m.Y H:i" }}</p>
+<p>{{ message.content|linebreaks }}</p>
+
+{% if message.proposal %}
+    <p><a href="{% url 'proposal_detail' message.proposal.id %}">Перейти к предложению</a></p>
+{% endif %}
+
+<a href="{{ request.META.HTTP_REFERER|default:'#' }}">Назад</a>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}{{ ad.title }}{% endblock %}
+
+{% block content %}
+<h2>{{ ad.title }}</h2>
+<p><strong>Описание:</strong> {{ ad.description }}</p>
+<p><strong>Категория:</strong> {{ ad.category.name }}</p>
+<p><strong>Владелец:</strong> {{ ad.user.username }}</p>
+
+{% if user.is_authenticated and ad.user != user %}
+    <a href="{% url 'propose_exchange' ad.id %}">Предложить обмен</a>
+{% endif %}
+
+{% if ad.user == user %}
+    <p><a href="{% url 'ad_update' ad.id %}">Редактировать</a> | <a href="{% url 'ad_delete' ad.id %}">Удалить</a></p>
+{% endif %}
+{% endblock %}
